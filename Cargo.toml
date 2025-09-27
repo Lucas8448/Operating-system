@@ -1,0 +1,21 @@
+[package]
+name = "rust-kernel"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+panic = "abort"
+[profile.release]
+panic = "abort"
+codegen-units = 1
+opt-level = "z"
+lto = true
+
+[dependencies]
+uefi = { version = "0.30", features=["alloc"] }
+spin = "0.9"
+rlibc = "1.0"
+
+[[bin]]
+name = "rust-kernel"
+path = "src/main.rs"
