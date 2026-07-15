@@ -1,48 +1,32 @@
-# 🌳 Yggdrasil
+# Yggdrasil
 
-> *“At the center of the cosmos stands Yggdrasil — a great ash tree, holding the nine realms in its roots and branches.”*
+Rust `no_std` UEFI/QEMU systems playground. Current scope: a bootable `x86_64-unknown-uefi` firmware app that draws a text UI, handles keyboard input, and exercises UEFI console/boot-service plumbing before a real kernel handoff.
 
-Yggdrasil is a **UEFI-first Rust playground** for future OS experiments. It currently boots as a `no_std` firmware app compiled for `x86_64-unknown-uefi`, paints a retro text UI, and listens for keyboard input so you can explore firmware services before handing off to a kernel properly.
+## Status
 
----
+- Boots through OVMF/QEMU as `uefi-img/EFI/BOOT/BOOTX64.EFI`.
+- Uses Rust nightly `nightly-2025-09-14`, pinned in `rust-toolchain.toml`.
+- UI lives in `src/main.rs`: menu navigation, system info, memory status, hardware/boot panels, exit/shutdown paths.
+- Not a kernel yet: memory management, drivers, scheduler, filesystems, and actual `ExitBootServices` handoff are placeholders.
 
-## ✨ Design Notes
+## Build and run
 
-- 🦀 **Rust nightly (`nightly-2025-09-14`)** pinned via `rust-toolchain.toml`.
-- 🧠 **UEFI runtime** with the [`uefi`](https://docs.rs/uefi) crate providing console, colour, and input helpers.
-- 🎛️ **State-machine menu** in `src/main.rs` with placeholder panels for system info, memory, hardware, boot options, exit services, and shutdown.
-- 💾 **Makefile flow** that assembles a FAT image (`uefi-img/EFI/BOOT/BOOTX64.EFI`) and spins up QEMU with OVMF firmware (Homebrew paths by default).
-
----
-
-## 🚀 Getting Airborne
-
-> ⚠️ You need `rustup`, a nightly compiler, and QEMU with OVMF firmware.
+Requires `rustup`, the pinned nightly target, QEMU, and OVMF firmware. The Makefile assumes Homebrew QEMU paths on macOS.
 
 ```bash
-# (Optional) pre-install the pinned nightly + target
-rustup toolchain install nightly-2025-09-14 \
-  --target x86_64-unknown-uefi
-
-# Build the firmware app
+rustup toolchain install nightly-2025-09-14 --target x86_64-unknown-uefi
 cargo +nightly-2025-09-14 build --target x86_64-unknown-uefi
-
-# Or let the Makefile prepare the FAT image and launch QEMU
 make run
 ```
 
-`make run` will:
-1. Compile `rust-kernel.efi` for `x86_64-unknown-uefi`.
-2. Stage the binary as `uefi-img/EFI/BOOT/BOOTX64.EFI`.
-3. Copy Homebrew’s `edk2-i386-vars.fd` to `uefi-vars.fd` if it doesn’t exist.
-4. Boot QEMU (`qemu-system-x86_64`) with HVF acceleration when available, falling back to TCG otherwise.
+`make run` builds `rust-kernel.efi`, stages it at `uefi-img/EFI/BOOT/BOOTX64.EFI`, creates a writable `uefi-vars.fd` if needed, then starts `qemu-system-x86_64` with OVMF.
 
-Inside QEMU, use the arrow keys to roam, `Enter` to open a panel, and `Esc` to quit back to firmware.
+Inside QEMU: arrow keys navigate, `Enter` opens a panel, `Esc` exits.
 
----
+## Recruiter scan
 
-## 📜 License
+This repo shows low-level Rust work without an operating-system-sized claim: custom UEFI target, `no_main`, panic-abort profiles, firmware console I/O, input polling, QEMU boot wiring, and a deliberately small state-machine UI.
 
-MIT. See `license` for the full text and branch the tree however you like.
+## License
 
----
+MIT. See `license`.
